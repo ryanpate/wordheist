@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Heist - Daily Mystery Word Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            color: #4a5568;
+            font-size: 32px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .badge {
+            font-size: 28px;
+        }
+
+        .case-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .case-number {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .case-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .stat-box {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 3px;
+        }
+
+        .letter-bank {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .letter {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            user-select: none;
+        }
+
+        .letter:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .letter.selected {
+            background: #667eea;
+            color: white;
+            transform: scale(0.9);
+        }
+
+        .word-input {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 20px;
+            min-height: 50px;
+            padding: 10px;
+            background: #f7fafc;
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+
+        .word-letter {
+            width: 40px;
+            height: 40px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #4a5568;
+            transition: all 0.3s ease;
+        }
+
+        .word-letter.filled {
+            border-style: solid;
+            border-color: #667eea;
+            background: white;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .clear-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .clear-btn:hover {
+            background: #cbd5e0;
+        }
+
+        .hint-btn {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+            color: white;
+        }
+
+        .hint-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(237, 137, 54, 0.4);
+        }
+
+        .found-words {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .found-words-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .words-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .found-word {
+            background: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #667eea;
+            border: 1px solid #667eea;
+            animation: wordFound 0.5s ease;
+        }
+
+        @keyframes wordFound {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .mystery-clue {
+            background: linear-gradient(135deg, #fbd38d 0%, #f6ad55 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #744210;
+        }
+
+        .clue-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .clue-text {
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            color: white;
+            animation: slideDown 0.5s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateX(-50%) translateY(-100px);
+            }
+
+            to {
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .message.success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .message.error {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+
+        .message.info {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+        }
+
+        .timer {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1><span class="badge">🕵️</span> Word Heist</h1>
+        </div>
+
+        <div class="case-info">
+            <div class="case-number">CASE #001</div>
+            <div class="case-title">The Missing Letters Mystery</div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">POINTS</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="streak">0</div>
+                <div class="stat-label">STREAK</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="hints">3</div>
+                <div class="stat-label">HINTS</div>
+            </div>
+        </div>
+
+        <div class="timer" id="timer">Time: 0:00</div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress" style="width: 0%"></div>
+        </div>
+
+        <div class="mystery-clue">
+            <div class="clue-title">MYSTERY WORD CLUE</div>
+            <div class="clue-text" id="mysteryClue">? ? ? ? ? ?</div>
+        </div>
+
+        <div class="letter-bank" id="letterBank"></div>
+
+        <div class="word-input" id="wordInput"></div>
+
+        <div class="controls">
+            <button class="clear-btn" onclick="clearWord()">Clear</button>
+            <button class="hint-btn" onclick="useHint()">Use Hint</button>
+            <button class="submit-btn" id="submitBtn" onclick="submitWord()" disabled>Submit</button>
+        </div>
+
+        <div class="found-words">
+            <div class="found-words-title">Evidence Collected (<span id="wordCount">0</span>/10)</div>
+            <div class="words-list" id="foundWords"></div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            letters: ['C', 'R', 'I', 'M', 'E', 'S'],
+            currentWord: [],
+            foundWords: [],
+            score: 0,
+            hints: 3,
+            streak: parseInt(localStorage.getItem('streak') || 0),
+            startTime: Date.now(),
+            mysteryWord: 'CRIMES',
+            mysteryProgress: 0
+        };
+
+        // Valid words dictionary (simplified for demo)
+        const validWords = {
+            3: ['ICE', 'SIR', 'RIM', 'IRE'],
+            4: ['RICE', 'MICE', 'CRIS', 'RIME', 'SEMI', 'ICES'],
+            5: ['CRIME', 'CRIES', 'RICES', 'MISER'],
+            6: ['CRIMES']
+        };
+
+        // Initialize game
+        function initGame() {
+            renderLetters();
+            updateDisplay();
+            updateStreak();
+            startTimer();
+        }
+
+        function renderLetters() {
+            const letterBank = document.getElementById('letterBank');
+            letterBank.innerHTML = '';
+
+            gameState.letters.forEach((letter, index) => {
+                const letterEl = document.createElement('div');
+                letterEl.className = 'letter';
+                letterEl.textContent = letter;
+                letterEl.onclick = () => selectLetter(index);
+                letterEl.id = `letter-${index}`;
+                letterBank.appendChild(letterEl);
+            });
+        }
+
+        function selectLetter(index) {
+            const letter = gameState.letters[index];
+            const letterEl = document.getElementById(`letter-${index}`);
+
+            if (letterEl.classList.contains('selected')) {
+                // Deselect
+                const wordIndex = gameState.currentWord.findIndex(l => l.index === index);
+                if (wordIndex !== -1) {
+                    gameState.currentWord.splice(wordIndex, 1);
+                    letterEl.classList.remove('selected');
+                }
+            } else {
+                // Select
+                gameState.currentWord.push({ letter, index });
+                letterEl.classList.add('selected');
+            }
+
+            updateWordInput();
+            updateSubmitButton();
+        }
+
+        function updateWordInput() {
+            const wordInput = document.getElementById('wordInput');
+            wordInput.innerHTML = '';
+
+            if (gameState.currentWord.length === 0) {
+                wordInput.innerHTML = '<div class="word-letter"></div>';
+                return;
+            }
+
+            gameState.currentWord.forEach(({ letter }) => {
+                const letterEl = document.createElement('div');
+                letterEl.className = 'word-letter filled';
+                letterEl.textContent = letter;
+                wordInput.appendChild(letterEl);
+            });
+        }
+
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = gameState.currentWord.length < 3;
+        }
+
+        function clearWord() {
+            gameState.currentWord.forEach(({ index }) => {
+                document.getElementById(`letter-${index}`).classList.remove('selected');
+            });
+            gameState.currentWord = [];
+            updateWordInput();
+            updateSubmitButton();
+        }
+
+        function submitWord() {
+            const word = gameState.currentWord.map(l => l.letter).join('');
+
+            // Check if already found
+            if (gameState.foundWords.includes(word)) {
+                showMessage('Already found!', 'error');
+                return;
+            }
+
+            // Check if valid
+            let isValid = false;
+            for (let length in validWords) {
+                if (validWords[length].includes(word)) {
+                    isValid = true;
+                    break;
+                }
+            }
+
+            if (isValid) {
+                gameState.foundWords.push(word);
+                gameState.score += word.length * 10;
+
+                // Update mystery progress
+                if (word === gameState.mysteryWord) {
+                    solveMystery();
+                } else {
+                    updateMysteryClue();
+                }
+
+                updateFoundWords();
+                updateDisplay();
+                showMessage(`+${word.length * 10} points!`, 'success');
+                clearWord();
+
+                // Check win condition
+                if (gameState.foundWords.length >= 10 || gameState.foundWords.includes(gameState.mysteryWord)) {
+                    setTimeout(winGame, 500);
+                }
+            } else {
+                showMessage('Not a valid word!', 'error');
+            }
+        }
+
+        function updateMysteryClue() {
+            const progress = Math.floor((gameState.foundWords.length / 10) * gameState.mysteryWord.length);
+            let clueText = '';
+
+            for (let i = 0; i < gameState.mysteryWord.length; i++) {
+                if (i < progress) {
+                    clueText += gameState.mysteryWord[i] + ' ';
+                } else {
+                    clueText += '? ';
+                }
+            }
+
+            document.getElementById('mysteryClue').textContent = clueText.trim();
+
+            // Update progress bar
+            const progressPercent = (gameState.foundWords.length / 10) * 100;
+            document.getElementById('progress').style.width = progressPercent + '%';
+        }
+
+        function solveMystery() {
+            document.getElementById('mysteryClue').textContent = gameState.mysteryWord;
+            gameState.score += 100;
+            showMessage('Mystery Solved! +100 points!', 'success');
+        }
+
+        function useHint() {
+            if (gameState.hints <= 0) {
+                showMessage('No hints remaining!', 'error');
+                return;
+            }
+
+            // Find a word not yet found
+            let hintWord = null;
+            for (let length in validWords) {
+                for (let word of validWords[length]) {
+                    if (!gameState.foundWords.includes(word)) {
+                        hintWord = word;
+                        break;
+                    }
+                }
+                if (hintWord) break;
+            }
+
+            if (hintWord) {
+                showMessage(`Try finding: ${hintWord}`, 'info');
+                gameState.hints--;
+                updateDisplay();
+            }
+        }
+
+        function updateFoundWords() {
+            const foundWordsEl = document.getElementById('foundWords');
+            foundWordsEl.innerHTML = '';
+
+            gameState.foundWords.forEach(word => {
+                const wordEl = document.createElement('div');
+                wordEl.className = 'found-word';
+                wordEl.textContent = word;
+                foundWordsEl.appendChild(wordEl);
+            });
+
+            document.getElementById('wordCount').textContent = gameState.foundWords.length;
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('hints').textContent = gameState.hints;
+        }
+
+        function updateStreak() {
+            document.getElementById('streak').textContent = gameState.streak;
+        }
+
+        function startTimer() {
+            setInterval(() => {
+                const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('timer').textContent = `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function showMessage(text, type) {
+            const existing = document.querySelector('.message');
+            if (existing) existing.remove();
+
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.textContent = text;
+            document.body.appendChild(message);
+
+            setTimeout(() => message.remove(), 3000);
+        }
+
+        function winGame() {
+            const time = Math.floor((Date.now() - gameState.startTime) / 1000);
+            const timeBonus = Math.max(0, 300 - time) * 2;
+            gameState.score += timeBonus;
+
+            // Update streak
+            gameState.streak++;
+            localStorage.setItem('streak', gameState.streak);
+
+            showMessage(`Case Solved! Time bonus: +${timeBonus}`, 'success');
+            updateDisplay();
+
+            // In a real game, this would submit score and load next case
+            setTimeout(() => {
+                if (confirm(`Case Solved! Final Score: ${gameState.score}\n\nPlay tomorrow's case?`)) {
+                    location.reload();
+                }
+            }, 1000);
+        }
+
+        // Initialize on load
+        initGame();
+    </script>
+</body>
+
+</html>
