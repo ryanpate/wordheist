@@ -1,0 +1,134 @@
+# requirements.txt
+Flask==3.0.0
+Flask-CORS==4.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+PyJWT==2.8.0
+python-dotenv==1.0.0
+gunicorn==21.2.0
+psycopg2-binary==2.9.9
+stripe==7.8.0
+
+# .env (Development environment variables)
+SECRET_KEY=your-secret-key-here-change-this
+DATABASE_URL=sqlite:///wordheist.db
+STRIPE_SECRET_KEY=your-stripe-secret-key
+STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
+FRONTEND_URL=http://localhost:3000
+
+# .env.production (Production environment variables)
+SECRET_KEY=generate-strong-secret-key
+DATABASE_URL=postgresql://username:password@host:port/dbname
+STRIPE_SECRET_KEY=your-live-stripe-secret-key
+STRIPE_PUBLISHABLE_KEY=your-live-stripe-publishable-key
+FRONTEND_URL=https://wordheist.vercel.app
+
+# Procfile (for Heroku/Railway deployment)
+web: gunicorn app:app
+
+# railway.json (for Railway deployment)
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "startCommand": "gunicorn app:app --bind 0.0.0.0:$PORT",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
+}
+
+# render.yaml (for Render deployment)
+services:
+  - type: web
+    name: wordheist-api
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: wordheist-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+
+databases:
+  - name: wordheist-db
+    databaseName: wordheist
+    user: wordheist
+    plan: starter
+
+# setup.sh (Initial setup script)
+#!/bin/bash
+
+echo "Setting up Word Heist Backend..."
+
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create .env file from template
+cp .env.example .env
+
+# Initialize database
+flask init-db
+
+# Seed puzzles for 30 days
+flask seed-puzzles
+
+echo "Setup complete! Run 'flask run' to start the development server."
+
+# docker-compose.yml (Optional - for local development with PostgreSQL)
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://wordheist:password@db:5432/wordheist
+      - SECRET_KEY=dev-secret-key
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=wordheist
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=wordheist
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
+
+# Dockerfile (Optional - for containerized deployment)
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# Create database directory for SQLite (if using SQLite in container)
+RUN mkdir -p /app/instance
+
+EXPOSE 5000
+
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
