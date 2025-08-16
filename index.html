@@ -349,6 +349,95 @@
             background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
             transition: width 0.3s ease;
         }
+
+        /* Auth UI Styles */
+        .auth-section {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 10px;
+        }
+
+        .auth-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .user-info {
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .modal h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: #718096;
+        }
     </style>
 </head>
 
@@ -356,6 +445,21 @@
     <div class="game-container">
         <div class="header">
             <h1><span class="badge">🕵️</span> Word Heist</h1>
+        </div>
+
+        <!-- Authentication Section -->
+        <div class="auth-section" id="authSection">
+            <div id="loggedOut" style="display: none;">
+                <p>Sign in to save your progress and compete on leaderboards!</p>
+                <button class="auth-btn" onclick="showLoginModal()">Login</button>
+                <button class="auth-btn" onclick="showRegisterModal()">Register</button>
+            </div>
+            <div id="loggedIn" style="display: none;">
+                <div class="user-info">
+                    Welcome, <strong id="username">Player</strong>!
+                    <button class="auth-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
         </div>
 
         <div class="case-info">
@@ -405,7 +509,101 @@
         </div>
     </div>
 
+    <!-- Login/Register Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Login</h2>
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <input type="text" id="authUsername" placeholder="Username" style="display: none;">
+                <input type="email" id="authEmail" placeholder="Email" required>
+                <input type="password" id="authPassword" placeholder="Password" required>
+                <button type="submit" class="submit-btn" style="width: 100%; margin-top: 10px;">Submit</button>
+            </form>
+        </div>
+    </div>
+
     <script>
+        // ============= API CONFIGURATION =============
+        const API_URL = 'https://your-backend-url.railway.app/api';  // Replace with your Railway URL
+        // For local testing use: 'http://localhost:5000/api'
+
+        // API Helper Class
+        class WordHeistAPI {
+            constructor() {
+                this.baseURL = API_URL;
+                this.token = localStorage.getItem('wordheist_token');
+                this.user = JSON.parse(localStorage.getItem('wordheist_user') || 'null');
+            }
+
+            async request(endpoint, options = {}) {
+                const url = `${this.baseURL}${endpoint}`;
+                const config = {
+                    ...options,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers,
+                    }
+                };
+
+                if (this.token) {
+                    config.headers['Authorization'] = `Bearer ${this.token}`;
+                }
+
+                try {
+                    const response = await fetch(url, config);
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'API request failed');
+                    return data;
+                } catch (error) {
+                    console.error('API Error:', error);
+                    throw error;
+                }
+            }
+
+            async getDailyPuzzle() {
+                return await this.request('/daily-puzzle');
+            }
+
+            async validateWord(word, puzzleId) {
+                return await this.request('/validate-word', {
+                    method: 'POST',
+                    body: JSON.stringify({ word, puzzle_id: puzzleId })
+                });
+            }
+
+            async login(email, password) {
+                const data = await this.request('/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+                this.token = data.token;
+                this.user = data.user;
+                localStorage.setItem('wordheist_token', this.token);
+                localStorage.setItem('wordheist_user', JSON.stringify(this.user));
+                return data;
+            }
+
+            async register(username, email, password) {
+                const data = await this.request('/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, email, password })
+                });
+                this.token = data.token;
+                this.user = data.user;
+                localStorage.setItem('wordheist_token', this.token);
+                localStorage.setItem('wordheist_user', JSON.stringify(this.user));
+                return data;
+            }
+
+            isAuthenticated() {
+                return !!this.token;
+            }
+        }
+
+        // Initialize API
+        const api = new WordHeistAPI();
+
         // Game state
         let gameState = {
             letters: ['C', 'R', 'I', 'M', 'E', 'S'],
@@ -416,7 +614,9 @@
             streak: parseInt(localStorage.getItem('streak') || 0),
             startTime: Date.now(),
             mysteryWord: 'CRIMES',
-            mysteryProgress: 0
+            mysteryProgress: 0,
+            puzzleId: null,  // Added for API
+            isOnline: false   // Added for API
         };
 
         // Valid words dictionary (simplified for demo)
@@ -427,8 +627,30 @@
             6: ['CRIMES']
         };
 
-        // Initialize game
-        function initGame() {
+        // Initialize game - Enhanced with API
+        async function initGame() {
+            try {
+                // Try to get daily puzzle from API
+                const puzzleData = await api.getDailyPuzzle();
+                if (puzzleData && puzzleData.puzzle) {
+                    gameState.letters = puzzleData.puzzle.letters;
+                    gameState.puzzleId = puzzleData.puzzle.id;
+                    gameState.isOnline = true;
+                    gameState.mysteryWord = '?'.repeat(puzzleData.puzzle.mystery_length);
+
+                    // Restore user progress if available
+                    if (puzzleData.user_progress) {
+                        gameState.foundWords = puzzleData.user_progress.found_words;
+                        gameState.score = puzzleData.user_progress.current_score;
+                    }
+
+                    showMessage('Connected to server!', 'success');
+                }
+            } catch (error) {
+                console.log('Running in offline mode');
+                gameState.isOnline = false;
+            }
+
             renderLetters();
             updateDisplay();
             updateStreak();
@@ -501,16 +723,50 @@
             updateSubmitButton();
         }
 
-        function submitWord() {
+        async function submitWord() {
             const word = gameState.currentWord.map(l => l.letter).join('');
 
-            // Check if already found
+            // If online and authenticated, use API validation
+            if (gameState.isOnline && api.isAuthenticated() && gameState.puzzleId) {
+                try {
+                    const result = await api.validateWord(word, gameState.puzzleId);
+
+                    if (result.valid && !result.duplicate) {
+                        gameState.foundWords = result.found_words;
+                        gameState.score = result.current_score;
+
+                        updateFoundWords();
+                        updateDisplay();
+                        showMessage(`+${result.points} points!`, 'success');
+
+                        if (result.is_mystery) {
+                            solveMystery();
+                        } else {
+                            updateMysteryClue();
+                        }
+
+                        clearWord();
+
+                        if (result.completed) {
+                            setTimeout(winGame, 500);
+                        }
+                    } else if (result.duplicate) {
+                        showMessage('Already found!', 'error');
+                    } else {
+                        showMessage('Not a valid word!', 'error');
+                    }
+                    return;
+                } catch (error) {
+                    console.log('API validation failed, using offline mode');
+                }
+            }
+
+            // Offline validation (original code)
             if (gameState.foundWords.includes(word)) {
                 showMessage('Already found!', 'error');
                 return;
             }
 
-            // Check if valid
             let isValid = false;
             for (let length in validWords) {
                 if (validWords[length].includes(word)) {
@@ -523,7 +779,6 @@
                 gameState.foundWords.push(word);
                 gameState.score += word.length * 10;
 
-                // Update mystery progress
                 if (word === gameState.mysteryWord) {
                     solveMystery();
                 } else {
@@ -535,7 +790,6 @@
                 showMessage(`+${word.length * 10} points!`, 'success');
                 clearWord();
 
-                // Check win condition
                 if (gameState.foundWords.length >= 10 || gameState.foundWords.includes(gameState.mysteryWord)) {
                     setTimeout(winGame, 500);
                 }
@@ -660,6 +914,75 @@
 
         // Initialize on load
         initGame();
+        updateAuthUI();
+
+        // ============= AUTHENTICATION FUNCTIONS =============
+        function updateAuthUI() {
+            const loggedOut = document.getElementById('loggedOut');
+            const loggedIn = document.getElementById('loggedIn');
+
+            if (api.isAuthenticated() && api.user) {
+                loggedOut.style.display = 'none';
+                loggedIn.style.display = 'block';
+                document.getElementById('username').textContent = api.user.username;
+            } else {
+                loggedOut.style.display = 'block';
+                loggedIn.style.display = 'none';
+            }
+        }
+
+        function showLoginModal() {
+            document.getElementById('authModal').classList.add('active');
+            document.getElementById('modalTitle').textContent = 'Login';
+            document.getElementById('authUsername').style.display = 'none';
+            document.getElementById('authUsername').required = false;
+        }
+
+        function showRegisterModal() {
+            document.getElementById('authModal').classList.add('active');
+            document.getElementById('modalTitle').textContent = 'Register';
+            document.getElementById('authUsername').style.display = 'block';
+            document.getElementById('authUsername').required = true;
+        }
+
+        function closeModal() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+
+        async function handleAuth(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const username = document.getElementById('authUsername').value;
+            const isRegister = document.getElementById('modalTitle').textContent === 'Register';
+
+            try {
+                if (isRegister) {
+                    await api.register(username, email, password);
+                    showMessage('Registration successful!', 'success');
+                } else {
+                    await api.login(email, password);
+                    showMessage('Login successful!', 'success');
+                }
+
+                closeModal();
+                updateAuthUI();
+                initGame(); // Reload game with user data
+
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        }
+
+        function logout() {
+            api.token = null;
+            api.user = null;
+            localStorage.removeItem('wordheist_token');
+            localStorage.removeItem('wordheist_user');
+            updateAuthUI();
+            showMessage('Logged out successfully', 'info');
+        }
     </script>
 </body>
 

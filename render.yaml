@@ -1,0 +1,20 @@
+# render.yaml (for Render deployment)
+services:
+  - type: web
+    name: wordheist-api
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: wordheist-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+
+databases:
+  - name: wordheist-db
+    databaseName: wordheist
+    user: wordheist
+    plan: starter
