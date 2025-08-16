@@ -13,23 +13,61 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Courier New', 'Segoe UI', monospace;
+            background: linear-gradient(135deg, #2c2416 0%, #1a1611 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(139, 106, 65, 0.03) 2px,
+                    rgba(139, 106, 65, 0.03) 4px);
+            pointer-events: none;
         }
 
         .game-container {
-            background: white;
+            background: linear-gradient(135deg, #f4e8d0 0%, #e8dcc0 100%);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 0 20px rgba(139, 106, 65, 0.1);
             padding: 30px;
             max-width: 500px;
             width: 100%;
             animation: fadeIn 0.5s ease;
+            border: 3px solid #3d2f1f;
+            position: relative;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(61, 47, 31, 0.02) 10px,
+                    rgba(61, 47, 31, 0.02) 20px);
+            border-radius: 20px;
+            pointer-events: none;
         }
 
         @keyframes fadeIn {
@@ -50,37 +88,77 @@
         }
 
         h1 {
-            color: #4a5568;
+            color: #3d2f1f;
             font-size: 32px;
             margin-bottom: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            letter-spacing: 2px;
         }
 
         .badge {
             font-size: 28px;
+            filter: sepia(0.5);
         }
 
         .case-info {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #3d2f1f 0%, #2c2416 100%);
+            color: #f4e8d0;
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
             text-align: center;
+            box-shadow:
+                inset 0 2px 4px rgba(0, 0, 0, 0.3),
+                0 2px 4px rgba(0, 0, 0, 0.2);
+            border: 2px solid #8b6a41;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .case-info::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 5px,
+                    rgba(139, 106, 65, 0.1) 5px,
+                    rgba(139, 106, 65, 0.1) 10px);
+            animation: slide 20s linear infinite;
+        }
+
+        @keyframes slide {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            100% {
+                transform: translate(50px, 50px);
+            }
         }
 
         .case-number {
             font-size: 14px;
             opacity: 0.9;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 3px;
         }
 
         .case-title {
             font-size: 20px;
             font-weight: bold;
             margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .stats-row {
@@ -94,21 +172,26 @@
             flex: 1;
             text-align: center;
             padding: 10px;
-            background: #f7fafc;
+            background: linear-gradient(135deg, #d4c4a8 0%, #c8b898 100%);
             border-radius: 10px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid #8b6a41;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .stat-value {
             font-size: 24px;
             font-weight: bold;
-            color: #667eea;
+            color: #3d2f1f;
+            font-family: 'Courier New', monospace;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
         }
 
         .stat-label {
             font-size: 12px;
-            color: #718096;
+            color: #5a4636;
             margin-top: 3px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .letter-bank {
@@ -122,29 +205,37 @@
         .letter {
             width: 50px;
             height: 50px;
-            border: 2px solid #667eea;
+            border: 2px solid #8b6a41;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
             font-weight: bold;
-            color: #4a5568;
+            color: #3d2f1f;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: white;
+            background: linear-gradient(135deg, #f4e8d0 0%, #e8dcc0 100%);
             user-select: none;
+            box-shadow:
+                0 3px 6px rgba(0, 0, 0, 0.2),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+            font-family: 'Courier New', monospace;
         }
 
         .letter:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow:
+                0 8px 12px rgba(0, 0, 0, 0.3),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #f9edD5 0%, #ede1c5 100%);
         }
 
         .letter.selected {
-            background: #667eea;
-            color: white;
+            background: linear-gradient(135deg, #8b6a41 0%, #6b5331 100%);
+            color: #f4e8d0;
             transform: scale(0.9);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .word-input {
@@ -154,29 +245,34 @@
             margin-bottom: 20px;
             min-height: 50px;
             padding: 10px;
-            background: #f7fafc;
+            background: linear-gradient(135deg, #d4c4a8 0%, #c8b898 100%);
             border-radius: 10px;
             flex-wrap: wrap;
+            border: 2px solid #8b6a41;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .word-letter {
             width: 40px;
             height: 40px;
-            border: 2px dashed #cbd5e0;
+            border: 2px dashed #8b6a41;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
             font-weight: bold;
-            color: #4a5568;
+            color: #3d2f1f;
             transition: all 0.3s ease;
+            background: rgba(244, 232, 208, 0.5);
+            font-family: 'Courier New', monospace;
         }
 
         .word-letter.filled {
             border-style: solid;
-            border-color: #667eea;
-            background: white;
+            border-color: #5a4636;
+            background: #f4e8d0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .controls {
@@ -197,51 +293,78 @@
         }
 
         .submit-btn {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            color: white;
+            background: linear-gradient(135deg, #2a5a2a 0%, #1d3d1d 100%);
+            color: #f4e8d0;
+            box-shadow:
+                0 4px 6px rgba(0, 0, 0, 0.3),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .submit-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+            box-shadow:
+                0 6px 12px rgba(0, 0, 0, 0.4),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #326432 0%, #254725 100%);
         }
 
         .submit-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            background: linear-gradient(135deg, #5a4636 0%, #483828 100%);
         }
 
         .clear-btn {
-            background: #e2e8f0;
-            color: #4a5568;
+            background: linear-gradient(135deg, #8b6a41 0%, #6b5331 100%);
+            color: #f4e8d0;
+            box-shadow:
+                0 4px 6px rgba(0, 0, 0, 0.2),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .clear-btn:hover {
-            background: #cbd5e0;
+            background: linear-gradient(135deg, #9b7a51 0%, #7b6341 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
         }
 
         .hint-btn {
-            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
-            color: white;
+            background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+            color: #f4e8d0;
+            box-shadow:
+                0 4px 6px rgba(0, 0, 0, 0.2),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .hint-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(237, 137, 54, 0.4);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #9b5523 0%, #7b4420 100%);
         }
 
         .found-words {
-            background: #f7fafc;
+            background: linear-gradient(135deg, #d4c4a8 0%, #c8b898 100%);
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 20px;
+            border: 2px solid #8b6a41;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .found-words-title {
             font-size: 16px;
             font-weight: bold;
-            color: #4a5568;
+            color: #3d2f1f;
             margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .words-list {
@@ -251,13 +374,16 @@
         }
 
         .found-word {
-            background: white;
+            background: #f4e8d0;
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 14px;
-            color: #667eea;
-            border: 1px solid #667eea;
+            color: #3d2f1f;
+            border: 2px solid #8b6a41;
             animation: wordFound 0.5s ease;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         @keyframes wordFound {
@@ -273,24 +399,48 @@
         }
 
         .mystery-clue {
-            background: linear-gradient(135deg, #fbd38d 0%, #f6ad55 100%);
+            background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 20px;
             text-align: center;
-            color: #744210;
+            color: #f4e8d0;
+            border: 2px solid #d4a574;
+            box-shadow:
+                0 4px 8px rgba(0, 0, 0, 0.3),
+                inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .mystery-clue::before {
+            content: 'TOP SECRET';
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #d32f2f;
+            color: white;
+            padding: 2px 8px;
+            font-size: 10px;
+            font-weight: bold;
+            transform: rotate(3deg);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .clue-title {
             font-size: 14px;
             font-weight: bold;
             margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.9;
         }
 
         .clue-text {
             font-size: 18px;
             font-weight: bold;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .message {
@@ -301,9 +451,13 @@
             padding: 15px 30px;
             border-radius: 10px;
             font-weight: bold;
-            color: white;
+            color: #f4e8d0;
             animation: slideDown 0.5s ease;
             z-index: 1000;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
 
         @keyframes slideDown {
@@ -317,37 +471,46 @@
         }
 
         .message.success {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            background: linear-gradient(135deg, #2a5a2a 0%, #1d3d1d 100%);
+            border: 2px solid #4a7a4a;
         }
 
         .message.error {
-            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            background: linear-gradient(135deg, #8b2020 0%, #6b1515 100%);
+            border: 2px solid #bb4040;
         }
 
         .message.info {
-            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            background: linear-gradient(135deg, #3d2f1f 0%, #2c2416 100%);
+            border: 2px solid #8b6a41;
         }
 
         .timer {
             text-align: center;
             margin-bottom: 15px;
             font-size: 14px;
-            color: #718096;
+            color: #5a4636;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            letter-spacing: 1px;
         }
 
         .progress-bar {
             width: 100%;
             height: 8px;
-            background: #e2e8f0;
+            background: #c8b898;
             border-radius: 4px;
             overflow: hidden;
             margin-bottom: 20px;
+            border: 1px solid #8b6a41;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(90deg, #8b4513 0%, #6b3410 100%);
             transition: width 0.3s ease;
+            box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.2);
         }
 
         /* Auth UI Styles */
@@ -355,29 +518,37 @@
             text-align: center;
             margin-bottom: 20px;
             padding: 15px;
-            background: #f7fafc;
+            background: linear-gradient(135deg, #d4c4a8 0%, #c8b898 100%);
             border-radius: 10px;
+            border: 2px solid #8b6a41;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .auth-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #3d2f1f 0%, #2c2416 100%);
+            color: #f4e8d0;
             padding: 10px 20px;
             border: none;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             margin: 0 5px;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         .auth-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(135deg, #4d3f2f 0%, #3c3426 100%);
         }
 
         .user-info {
             font-size: 14px;
-            color: #4a5568;
+            color: #3d2f1f;
+            font-family: 'Courier New', monospace;
         }
 
         .modal {
@@ -387,7 +558,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -398,12 +569,14 @@
         }
 
         .modal-content {
-            background: white;
+            background: linear-gradient(135deg, #f4e8d0 0%, #e8dcc0 100%);
             padding: 30px;
             border-radius: 15px;
             max-width: 400px;
             width: 90%;
             animation: slideUp 0.3s ease;
+            border: 3px solid #3d2f1f;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         @keyframes slideUp {
@@ -422,21 +595,38 @@
             width: 100%;
             padding: 10px;
             margin: 10px 0;
-            border: 2px solid #e2e8f0;
+            border: 2px solid #8b6a41;
             border-radius: 8px;
             font-size: 16px;
+            background: #f9f3e9;
+            color: #3d2f1f;
+            font-family: 'Courier New', monospace;
+        }
+
+        .modal input:focus {
+            outline: none;
+            border-color: #5a4636;
+            box-shadow: 0 0 5px rgba(139, 106, 65, 0.3);
         }
 
         .modal h2 {
-            color: #4a5568;
+            color: #3d2f1f;
             margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .close-modal {
             float: right;
             font-size: 24px;
             cursor: pointer;
-            color: #718096;
+            color: #8b6a41;
+            font-weight: bold;
+        }
+
+        .close-modal:hover {
+            color: #5a4636;
         }
     </style>
 </head>
