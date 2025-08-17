@@ -351,6 +351,14 @@ def get_daily_puzzle():
     })
 
 
+@app.route('/api/init-db')
+def init_database():
+    try:
+        db.create_all()
+        return jsonify({'message': 'Database initialized successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/validate-word', methods=['POST'])
 @require_auth
 def validate_word():
